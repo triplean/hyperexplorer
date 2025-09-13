@@ -1,0 +1,46 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose
+      
+    - name: Upload binary as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hyperexplorer
+        path: target/release/hyperexplorer.exe
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/hyperexplorer.exe
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose
+      
+    - name: Upload binary as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hyperexplorer
+        path: target/release/hyperexplorer.exe
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/hyperexplorer.exe
