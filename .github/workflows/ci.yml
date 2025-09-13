@@ -26,8 +26,8 @@ jobs:
 
     - name: Create Tag and Push
       run: |
-        git tag $VERSION
-        git push origin $VERSION
+        git tag ${{ env.VERSION }}
+        git push origin ${{ env.VERSION }}
 
     - name: Upload Windows binary as artifact
       uses: actions/upload-artifact@v4
@@ -39,7 +39,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: target/release/hyperexplorer.exe
-        tag_name: $VERSION
+        tag_name: ${{ env.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -61,6 +61,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: target/release/hyperexplorer
-        tag_name: $VERSION
+        tag_name: ${{ env.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
