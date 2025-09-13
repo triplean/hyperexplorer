@@ -18,7 +18,7 @@ jobs:
       run: cargo build --verbose
       
     - name: Upload binary as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: hyperexplorer
         path: target/release/hyperexplorer.exe
@@ -35,7 +35,7 @@ jobs:
       run: cargo build --verbose
       
     - name: Upload binary as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: hyperexplorer
         path: target/release/hyperexplorer.exe
