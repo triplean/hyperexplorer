@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use eframe::egui;
+use egui::include_image;
 use opener;
 use crate::indexing;
 
@@ -47,23 +48,20 @@ impl HyperExplorer {
                             if entry.path().is_dir() {
                                 img = egui::Image::new(egui::include_image!("icons/folder.png"));
                             }
-                            ui.horizontal(|ui| {
-                                ui.add(img);
-                                let entrybttn = egui::Button::new(file_name);
-                                let res = ui.add(entrybttn);
-                                if res.double_clicked() {
-                                    let path = entry.path();
-                                    if path.is_file() {
-                                        if let Err(e) = opener::open(&path) {
-                                            eprintln!("Error opening file: {}", e);
-                                        }
-                                    } else {
-                                        self.curr_dir = Some(path);
-                                        self.dir_changed = true;
-                                        self.is_root = false;
+                            let entrybttn = egui::Button::image_and_text(img, file_name);
+                            let res = ui.add(entrybttn);
+                            if res.double_clicked() {
+                                let path = entry.path();
+                                if path.is_file() {
+                                    if let Err(e) = opener::open(&path) {
+                                        eprintln!("Error opening file: {}", e);
                                     }
+                                } else {
+                                    self.curr_dir = Some(path);
+                                    self.dir_changed = true;
+                                    self.is_root = false;
                                 }
-                            });
+                            }
                         }
                     }
                 },
