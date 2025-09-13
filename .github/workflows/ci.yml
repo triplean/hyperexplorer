@@ -8,39 +8,50 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  VERSION: "alpha-${{ github.run_number }}"
 
 jobs:
   windows:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-      
-    - name: Upload binary as artifact
+
+    - name: Build for Windows
+      run: cargo build --release --verbose
+
+    - name: Create Tag and Push
+      run: |
+        git tag $VERSION
+        git push origin $VERSION
+
+    - name: Upload Windows binary as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: hyperexplorer
+        name: hyperexplorer-windows
         path: target/release/hyperexplorer.exe
 
-    - name: Create GitHub Release
+    - name: Create GitHub Release for Windows
       uses: softprops/action-gh-release@v1
       with:
         files: target/release/hyperexplorer.exe
+        tag_name: $VERSION
+
   linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-      
-    - name: Upload binary as artifact
+
+    - name: Build for Linux
+      run: cargo build --release --verbose
+
+    - name: Upload Linux binary as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: hyperexplorer
-        path: target/release/hyperexplorer.exe
+        name: hyperexplorer-linux
+        path: target/release/hyperexplorer
 
-    - name: Create GitHub Release
+    - name: Create GitHub Release for Linux
       uses: softprops/action-gh-release@v1
       with:
-        files: target/release/hyperexplorer.exe
+        files: target/release/hyperexplorer
+        tag_name: $VERSION
