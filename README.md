@@ -1,5 +1,5 @@
 # HyperExplorer
-HyperExplorer is a file explorer application built with Rust and eframe.
+HyperExplorer is a file explorer application built with Rust and egui.
 
 ## Todos:
 - [x] Basic navigation
