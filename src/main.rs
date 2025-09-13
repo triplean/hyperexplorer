@@ -1,5 +1,5 @@
+#![windows_subsystem = "windows"]
 use tokio;
-
 mod ui;
 mod indexing;
 mod mods;
