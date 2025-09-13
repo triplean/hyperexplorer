@@ -1,4 +1,4 @@
-name: Rust
+name: HyperExplorer
 
 on:
   push:
@@ -35,6 +35,8 @@ jobs:
       with:
         files: target/release/hyperexplorer.exe
         tag_name: $VERSION
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux:
     runs-on: ubuntu-latest
@@ -55,3 +57,5 @@ jobs:
       with:
         files: target/release/hyperexplorer
         tag_name: $VERSION
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
