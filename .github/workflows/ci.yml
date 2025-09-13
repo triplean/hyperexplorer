@@ -19,48 +19,54 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build for Windows
-      run: cargo build --release --verbose
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
 
-    - name: Create Tag and Push
-      run: |
-        git tag ${{ env.VERSION }}
-        git push origin ${{ env.VERSION }}
+      - name: Build for Windows
+        run: cargo build --release --verbose
 
-    - name: Upload Windows binary as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: hyperexplorer-windows
-        path: target/release/hyperexplorer.exe
+      - name: Create Tag and Push
+        run: |
+          git tag ${{ env.VERSION }}
+          git push origin ${{ env.VERSION }}
 
-    - name: Create GitHub Release for Windows
-      uses: softprops/action-gh-release@v1
-      with:
-        files: target/release/hyperexplorer.exe
-        tag_name: ${{ env.VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Windows binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperexplorer-windows
+          path: target/release/hyperexplorer.exe
+
+      - name: Create GitHub Release for Windows
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/hyperexplorer.exe
+          tag_name: ${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build for Linux
-      run: cargo build --release --verbose
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
 
-    - name: Upload Linux binary as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: hyperexplorer-linux
-        path: target/release/hyperexplorer
+      - name: Build for Linux
+        run: cargo build --release --verbose
 
-    - name: Create GitHub Release for Linux
-      uses: softprops/action-gh-release@v1
-      with:
-        files: target/release/hyperexplorer
-        tag_name: ${{ env.VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperexplorer-linux
+          path: target/release/hyperexplorer
+
+      - name: Create GitHub Release for Linux
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/hyperexplorer
+          tag_name: ${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

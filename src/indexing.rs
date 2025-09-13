@@ -1,5 +1,4 @@
-use std::path::{Path, PathBuf};
-use std::fs;
+use std::path::PathBuf;
 use std::fs::{read_dir, DirEntry, ReadDir};
 use sysinfo::Disks;
 
