@@ -63,18 +63,18 @@ jobs:
 
       - name: Compress binary and icons
         run: |
-          zip -r hyperexplorer-linux-x86_64.zip target/release/hyperexplorer src/icons
+          zip -r hyperexplorer-linux-x64.zip target/release/hyperexplorer src/icons
 
       - name: Upload Linux zip as artifact
         uses: actions/upload-artifact@v4
         with:
           name: hyperexplorer-linux
-          path: hyperexplorer-linux.zip
+          path: hyperexplorer-linux-x64.zip
 
       - name: Create GitHub Release for Linux
         uses: softprops/action-gh-release@v1
         with:
-          files: hyperexplorer-linux.zip
+          files: hyperexplorer-linux-x64.zip
           tag_name: ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
