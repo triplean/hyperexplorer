@@ -27,21 +27,25 @@ jobs:
       - name: Build for Windows
         run: cargo build --release --verbose
 
+      - name: Compress binary and icons
+        run: |
+          Compress-Archive -Path target/release/hyperexplorer.exe, src/icons -DestinationPath hyperexplorer-windows.zip
+
       - name: Create Tag and Push
         run: |
           git tag ${{ env.VERSION }}
           git push origin ${{ env.VERSION }}
 
-      - name: Upload Windows binary as artifact
+      - name: Upload Windows zip as artifact
         uses: actions/upload-artifact@v4
         with:
           name: hyperexplorer-windows
-          path: target/release/hyperexplorer.exe
+          path: hyperexplorer-windows.zip
 
       - name: Create GitHub Release for Windows
         uses: softprops/action-gh-release@v1
         with:
-          files: target/release/hyperexplorer.exe
+          files: hyperexplorer-windows.zip
           tag_name: ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,16 +61,20 @@ jobs:
       - name: Build for Linux
         run: cargo build --release --verbose
 
-      - name: Upload Linux binary as artifact
+      - name: Compress binary and icons
+        run: |
+          zip -r hyperexplorer-linux-x86_64.zip target/release/hyperexplorer src/icons
+
+      - name: Upload Linux zip as artifact
         uses: actions/upload-artifact@v4
         with:
           name: hyperexplorer-linux
-          path: target/release/hyperexplorer
+          path: hyperexplorer-linux.zip
 
       - name: Create GitHub Release for Linux
         uses: softprops/action-gh-release@v1
         with:
-          files: target/release/hyperexplorer
+          files: hyperexplorer-linux.zip
           tag_name: ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
