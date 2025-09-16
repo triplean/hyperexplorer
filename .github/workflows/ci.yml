@@ -63,7 +63,11 @@ jobs:
 
       - name: Compress binary and icons
         run: |
-          zip -r hyperexplorer-linux-x64.zip target/release/hyperexplorer src/icons
+          mkdir temp
+          cp target/release/hyperexplorer temp/
+          cp src/icons temp/
+          zip -r hyperexplorer-linux-x64.zip temp
+          rm -rf temp
 
       - name: Upload Linux zip as artifact
         uses: actions/upload-artifact@v4
