@@ -1,5 +1,6 @@
 # HyperExplorer
 HyperExplorer is a file explorer application built with Rust and egui.
+![screenshot]("https://raw.githubusercontent.com/triplean/hyperexplorer/refs/heads/main/screenshots/1.png")
 
 ## Todos:
 - [x] Basic navigation
