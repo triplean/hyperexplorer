@@ -66,7 +66,9 @@ jobs:
           mkdir temp
           cp -r target/release/hyperexplorer temp/
           cp -r src/icons temp/
-          zip -r hyperexplorer-linux-x64.zip temp
+          cd temp
+          zip -r ../hyperexplorer-linux-x64.zip *
+          cd ..
           rm -rf temp
 
       - name: Upload Linux zip as artifact
