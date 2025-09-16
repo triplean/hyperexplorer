@@ -64,8 +64,8 @@ jobs:
       - name: Compress binary and icons
         run: |
           mkdir temp
-          cp target/release/hyperexplorer temp/
-          cp src/icons temp/
+          cp -r target/release/hyperexplorer temp/
+          cp -r src/icons temp/
           zip -r hyperexplorer-linux-x64.zip temp
           rm -rf temp
 
