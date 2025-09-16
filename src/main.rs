@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 use tokio;
 mod ui;
-mod indexing;
+mod filesystem;
 
 #[tokio::main]
 async fn main() {

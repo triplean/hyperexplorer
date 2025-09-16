@@ -1,8 +1,10 @@
+use std::fs;
 use std::path::PathBuf;
+use clipboard_rs::{Clipboard, ClipboardContext};
 use eframe::egui;
-use egui::include_image;
+use std::path;
 use opener;
-use crate::indexing;
+use crate::filesystem;
 
 #[derive(Default)]
 pub struct HyperExplorer {
@@ -11,7 +13,8 @@ pub struct HyperExplorer {
     dir_changed: bool,
     is_root: bool,
     drives: Vec<PathBuf>,
-    search: String
+    search: String,
+    curr_dir_text: String,
 }
 
 impl HyperExplorer {
@@ -22,17 +25,18 @@ impl HyperExplorer {
             dir_changed: false,
             is_root: true,
             drives: Vec::new(),
-            search: String::new()
+            search: String::new(),
+            curr_dir_text: String::new()
         }
     }
 
     fn show_files(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
         if let Some(current_dir) = &self.curr_dir {
-            let entries = indexing::listentries(current_dir);
+            let entries = filesystem::listentries(current_dir);
 
             if !self.is_root && !self.drives.contains(current_dir) {
-                let up_btn = ui.button("..");
-                if up_btn.double_clicked() {
+                let up_btn = ui.button("<- Back");
+                if up_btn.clicked() {
                     if let Some(parent) = current_dir.parent() {
                         self.curr_dir = Some(parent.to_path_buf());
                         self.dir_changed = true;
@@ -44,6 +48,8 @@ impl HyperExplorer {
                 Ok(entries) => {
                     for entry in entries {
                         if let Ok(file_name) = entry.file_name().into_string() {
+                            // The icons are embedded in the binary, so the icons folder packed with the binary in GH Actions does nothing
+                            // I spent hours trying to show an image from the icons folder, but I can't find what I want
                             let mut img = egui::Image::new(egui::include_image!("icons/unk_file.png"));
                             if entry.path().is_dir() {
                                 img = egui::Image::new(egui::include_image!("icons/folder.png"));
@@ -57,11 +63,99 @@ impl HyperExplorer {
                                         eprintln!("Error opening file: {}", e);
                                     }
                                 } else {
-                                    self.curr_dir = Some(path);
+                                    self.curr_dir = Some(path.clone());
                                     self.dir_changed = true;
                                     self.is_root = false;
+                                    self.curr_dir_text = path.to_string_lossy().to_string();
                                 }
                             }
+
+                            res.context_menu(|ui| {
+                                if ui.button("Open").clicked() {
+                                    let path = entry.path();
+                                    if path.is_file() {
+                                        if let Err(e) = opener::open(&path) {
+                                            eprintln!("Error opening file: {}", e);
+                                        }
+                                    } else {
+                                        self.curr_dir = Some(path);
+                                        self.dir_changed = true;
+                                        self.is_root = false;
+                                    }
+                                    ui.close();
+                                }
+
+                                let clip = ClipboardContext::new();
+                                match clip {
+                                    Ok(clipboard) => {
+                                        let cliptext = clipboard.get_text();
+                                        match cliptext {
+                                            Ok(text) => {
+                                                let clean_text = text.trim().trim_matches('"').trim();
+                                                let path = path::PathBuf::from(&clean_text);
+                                                match path.exists() {
+                                                    true => {
+                                                        if ui.button("Paste").clicked() {
+                                                            if let Some(cd) = &self.curr_dir {
+                                                                let pasted = filesystem::paste(&path, cd);
+                                                                if pasted {
+                                                                    self.dir_changed = true;
+                                                                } else {
+                                                                    eprintln!("Error while pasting the file");
+                                                                }
+                                                            } else {
+                                                                eprintln!("There's not selected directory");
+                                                            }
+                                                        }
+                                                    },
+                                                    false => {
+                                                        eprintln!("The path doesn't exist or it's not accessible: {:?}", path);
+                                                    }
+                                                }
+                                            },
+                                            Err(e) => {
+                                                eprintln!("Error opening file: {}", e);
+                                                ui.close();
+                                                return;
+                                            }
+                                        }
+                                    },
+                                    Err(e) => {
+                                        eprintln!("Error accessing clipboard: {}", e);
+                                        ui.close();
+                                        return;
+                                    }
+                                }
+
+
+                                if ui.button("Copy").clicked() {
+                                    let clipb = ClipboardContext::new();
+                                    match clipb {
+                                        Ok(clipboard) => {
+                                            clipboard.set_text(entry.path().to_string_lossy().to_string()).expect("Can't write to clipboard");
+                                        },
+                                        Err(e) => {
+                                            eprintln!("Error accessing clipboard: {}", e);
+                                            ui.close();
+                                            return;
+                                        }
+                                    }
+                                    ui.close();
+                                }
+
+                                let delbttn = ui.button("Delete Permanently");
+                                if delbttn.clicked() {
+                                    if entry.path().is_file() {
+                                        filesystem::delete_file(&entry.path());
+                                    } else {
+                                        filesystem::delete_path(&entry.path());
+                                    }
+                                }
+
+                                if ui.button("Cancel").clicked() {
+                                    ui.close();
+                                }
+                            });
                         }
                     }
                 },
@@ -74,7 +168,7 @@ impl HyperExplorer {
     }
 
     fn show_disks(&mut self, ui: &mut egui::Ui) {
-        let disks = indexing::list_disks();
+        let disks = filesystem::list_disks();
         ui.horizontal(|ui| {
             for disk in &disks {
                 let disk_path = disk.mount_point().to_owned();
@@ -92,8 +186,9 @@ impl HyperExplorer {
 
                 if response.clicked() {
                     self.sel_disk = Some(disk_path.clone());
-                    self.curr_dir = Some(disk_path);
+                    self.curr_dir = Some(disk_path.clone());
                     self.is_root = true;
+                    self.curr_dir_text = disk_path.to_string_lossy().to_string();
                 }
             }
         });
@@ -107,12 +202,7 @@ impl eframe::App for HyperExplorer {
                 ui.horizontal(|ui| {
                     let header = egui::RichText::new("HyperExplorer").size(24.0);
                     ui.label(header);
-                    ui.vertical_centered(|ui| {
-                        let searchlbl = egui::RichText::new("Search:");
-                        ui.label(searchlbl);
-                        let searchbox = egui::TextEdit::singleline(&mut self.search);
-                        ui.add(searchbox);
-                    });
+                    ui.add(egui::TextEdit::singleline(&mut self.curr_dir_text).interactive(false));
                 });
 
                 self.show_disks(ui);
