@@ -1,0 +1,86 @@
+name: HyperExplorer
+
+permissions:
+  contents: write
+  issues: read
+  actions: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: 'alpha'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build for Windows
+        run: cargo build --release --verbose
+
+      - name: Compress binary and icons
+        run: |
+          Compress-Archive -Path target/release/hyperexplorer.exe, src/icons -DestinationPath hyperexplorer-windows.zip
+
+      - name: Upload Windows zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperexplorer-windows
+          path: hyperexplorer-windows.zip
+
+      - name: Create GitHub Release for Windows
+        uses: softprops/action-gh-release@v1
+        with:
+          files: hyperexplorer-windows.zip
+          tag_name: ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build for Linux
+        run: cargo build --release --verbose
+
+      - name: Compress binary and icons
+        run: |
+          mkdir temp
+          cp -r target/release/hyperexplorer temp/
+          cp -r src/icons temp/
+          cd temp
+          zip -r ../hyperexplorer-linux-x64.zip *
+          cd ..
+          rm -rf temp
+
+      - name: Upload Linux zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperexplorer-linux
+          path: hyperexplorer-linux-x64.zip
+
+      - name: Create GitHub Release for Linux
+        uses: softprops/action-gh-release@v1
+        with:
+          files: hyperexplorer-linux-x64.zip
+          tag_name: ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
