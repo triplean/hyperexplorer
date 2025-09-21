@@ -2,7 +2,7 @@
 use tokio;
 mod ui;
 mod filesystem;
-mod search;
+pub mod search;
 mod icons;
 mod ctxmenus;
 mod utils;

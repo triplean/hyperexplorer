@@ -200,6 +200,7 @@ impl FileSearcher {
         }
     }
 
+
     fn fuzzy_similarity(&self, pattern: &str, text: &str) -> f64 {
         let pattern_chars: Vec<char> = pattern.chars().collect();
         let text_chars: Vec<char> = text.chars().collect();

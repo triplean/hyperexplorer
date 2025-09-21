@@ -94,22 +94,28 @@ impl HyperExplorer {
             return;
         }
 
+        // Set indexing state
         self.is_indexing = true;
         self.indexing_start = Some(Instant::now());
         self.indexed_files = 0;
         self.status_msg = "Starting indexing...".to_string();
 
+        // Set up thread communication
         let (sender, receiver) = mpsc::channel();
         self.thread_receiver = Some(receiver);
 
+        // Clone necessary objects for thread
         let search_engine = Arc::clone(&self.search_engine);
         let ctx_clone = ctx.clone();
 
         thread::spawn(move || {
+            // Send indexing started message
             let _ = sender.send(ThreadMessage::IndexingStarted);
 
+            // Create local searcher
             let mut local_searcher = FileSearcher::new();
 
+            // Index files
             match local_searcher.index(&path.to_string_lossy(), true) {
                 Ok(file_count) => {
                     if let Ok(mut main_searcher) = search_engine.lock() {
@@ -129,7 +135,7 @@ impl HyperExplorer {
     /// Processes messages received from worker threads
     /// This method handles all inter-thread communication and updates the UI state accordingly.
     fn check_thread_messages(&mut self, ctx: &egui::Context) {
-        let mut should_clear_receiver = false;
+        // Process messages received from worker threads
         let mut messages_to_process = Vec::new();
 
         if let Some(receiver) = &self.thread_receiver {
@@ -138,6 +144,7 @@ impl HyperExplorer {
             }
         }
 
+        // Process messages
         let mut should_clear_receiver = false;
         for message in &messages_to_process {
             match message {

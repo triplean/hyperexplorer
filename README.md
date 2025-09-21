@@ -1,7 +1,23 @@
 <h1>HyperExplorer</h1>
-HyperExplorer is a file explorer built with Rust and egui.  
-I started this project because I find Windows File Explorer lacking, and I wanted a faster and more customizable alternative.
-<img src="screenshots/1.png" width=400 height=317>
+HyperExplorer is a file explorer with one of the fastest search times.
+Almost instant search results with indexing times of less than 10 seconds.
+<br />
+
+![screenshot](screenshots/1.png)
+
+## Performance
+### Machine Specifications:
+```
+CPU: AMD Ryzen 5 8600G
+RAM: 32GB DDR5 4800MT/s
+Storage: 1TB NVMe SSD (6Gb/s write, 7.3Gb/s read) PCIE 4.0
+Operating System: Kubuntu 25.04
+```
+Indexing the OS root directory takes ``3.3670`` seconds.
+<br />
+Searching takes ``162.68`` milliseconds.
+<br />
+You can test the performance running <pre>```cargo bench```</pre>
 
 ## Roadmap
 - [x] Basic navigation
