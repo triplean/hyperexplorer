@@ -1,6 +1,6 @@
-<h1>HyperExplorer</h1>
-HyperExplorer is a file explorer with one of the fastest search times.
-Almost instant search results with indexing times of less than 10 seconds.
+<h1 style="text-align: center;">HyperExplorer</h1>
+<p style="text-align: justify;">HyperExplorer is a file explorer with one of the fastest search times.
+Almost instant search results with indexing times of less than 10 seconds.</p>
 <br />
 
 ![screenshot](screenshots/1.png)
