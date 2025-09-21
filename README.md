@@ -8,8 +8,8 @@ I started this project because I find Windows File Explorer lacking, and I wante
 - [x] Opening files
 - [ ] Context menu
 - [ ] Drag and drop
-- [ ] File and directory icons
-- [ ] Search (filenames and file content)
+- [x] File and directory icons
+- [x] Fast Search
 - [ ] Better UI
 
 ## Download
