@@ -230,7 +230,7 @@ impl HyperExplorer {
 
     /// Renders the file browser interface
     fn show_files(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
-        if let Some(current_dir) = &self.curr_dir {
+        if let Some(current_dir) = &self.curr_dir.clone() {
             let entries = filesystem::listentries(current_dir);
 
             if !self.is_root && !self.drives.contains(current_dir) {
@@ -240,6 +240,7 @@ impl HyperExplorer {
                         self.curr_dir = Some(parent.to_path_buf());
                         self.dir_changed = true;
                         self.show_search_results = false;
+                        self.curr_dir_text = parent.to_string_lossy().to_string();
                     }
                 }
             }
